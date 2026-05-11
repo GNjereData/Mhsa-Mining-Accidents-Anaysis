@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/chinoyanjere/Downloads/Finished Mining Data Set.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="pragmas structure browser query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="7590"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="MSHA_Accidents_Raw" custom_title="0" dock_id="5" table="4,18:mainMSHA_Accidents_Raw"/><dock_state state="000000ff00000000fd00000001000000020000015c000002c9fc0100000005fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f007700730065003201000000000000015c0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500340100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500350100000000ffffffff0000010100ffffff0000015c0000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">SELECT
+    CASE
+        WHEN ACCIDENT_TIME &gt;= 600  AND ACCIDENT_TIME &lt; 1200 THEN 'Morning (6am-Noon)'
+        WHEN ACCIDENT_TIME &gt;= 1200 AND ACCIDENT_TIME &lt; 1800 THEN 'Afternoon (Noon-6pm)'
+        WHEN ACCIDENT_TIME &gt;= 1800 AND ACCIDENT_TIME &lt; 2400 THEN 'Evening (6pm-Midnight)'
+        WHEN ACCIDENT_TIME &gt;= 1    AND ACCIDENT_TIME &lt; 600  THEN 'Night (Midnight-6am)'
+        ELSE 'Unknown'
+    END AS TIME_OF_DAY,
+    COUNT(*) AS TOTAL_ACCIDENTS
+FROM MSHA_Accidents_Raw
+GROUP BY TIME_OF_DAY
+ORDER BY TOTAL_ACCIDENTS DESC;
+SELECT
+    OPERATOR_NAME,
+    COUNT(CASE WHEN DEGREE_INJURY = 'FATALITY' THEN 1 END)   AS TOTAL_FATALITIES,
+    COUNT(*)                                                   AS TOTAL_ACCIDENTS,
+    SUM(DAYS_LOST)                                             AS TOTAL_DAYS_LOST,
+    ROUND(AVG(TOT_EXPER), 2)                                  AS AVG_EXPERIENCE_YRS
+FROM MSHA_Accidents_Raw
+GROUP BY OPERATOR_NAME
+ORDER BY TOTAL_FATALITIES DESC
+LIMIT 5;
+SELECT
+    INJURY_SOURCE,
+    COUNT(*)                        AS TOTAL_INCIDENTS,
+    ROUND(AVG(DAYS_LOST), 2)       AS AVG_DAYS_LOST
+FROM MSHA_Accidents_Raw
+WHERE DAYS_LOST IS NOT NULL
+  AND INJURY_SOURCE IS NOT NULL
+GROUP BY INJURY_SOURCE
+HAVING COUNT(*) &gt;= 100
+ORDER BY AVG_DAYS_LOST DESC
+LIMIT 10;</sql><current_tab id="0"/></tab_sql></sqlb_project>
